@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>For You</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -64,12 +63,35 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .bouquet {
-    position: relative;
-    width: min(340px, 88vw);
-    height: min(440px, 114vw);
-    animation: floatBouquet 5s ease-in-out infinite;
+.bouquet {
+  position: relative;
+  width: min(340px, 88vw);
+  height: min(440px, 114vw);
+
+  cursor: pointer;
+  transform-origin: bottom center;
+
+  animation:
+    growBouquet 1.8s cubic-bezier(.2,.8,.2,1) forwards,
+    floatBouquet 5s ease-in-out infinite 1.8s;
+}
+
+@keyframes growBouquet {
+  0% {
+    opacity: 0;
+    transform: translateY(250px) scale(0.2);
   }
+
+  70% {
+    opacity: 1;
+    transform: translateY(-15px) scale(1.05);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
   @keyframes floatBouquet {
     0%, 100% { transform: translateY(0px); }
@@ -171,6 +193,31 @@
     .title { margin-bottom: 20px; }
     .message-wrap { margin-top: 20px; }
   }
+
+  .explosion-heart {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  color: #ff5f9e;
+  animation: heartExplosion 1.8s ease-out forwards;
+  text-shadow: 0 0 12px rgba(255,90,150,.8);
+}
+
+@keyframes heartExplosion {
+  0% {
+    opacity: 1;
+    transform: translate(0,0) scale(.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(var(--x), var(--y))
+      rotate(var(--r))
+      scale(1.8);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -325,10 +372,9 @@
       <path d="M80 390 Q170 370 260 390 Q280 410 260 430 Q170 415 80 430 Q60 410 80 390 Z" fill="#c8a060" opacity="0.6"/>
       <path d="M80 390 Q170 378 260 390" stroke="#e8c080" stroke-width="2" fill="none" opacity="0.8"/>
       <path d="M80 430 Q170 418 260 430" stroke="#a07030" stroke-width="1.5" fill="none" opacity="0.5"/>
-      <path d="M155 388 Q130 360 140 345 Q155 335 165 355 Z" fill="#e0b070" opacity="0.85"/>
-      <path d="M185 388 Q210 360 200 345 Q185 335 175 355 Z" fill="#e0b070" opacity="0.85"/>
-      <ellipse cx="170" cy="388" rx="12" ry="10" fill="#f0c880"/>
-      <ellipse cx="170" cy="388" rx="6" ry="5" fill="#d4a050"/>
+      <!-- Heart on ribbon -->
+      <path d="M170 378 C170 378 148 362 148 350 C148 341 156 335 163 339 C166 341 170 345 170 345 C170 345 174 341 177 339 C184 335 192 341 192 350 C192 362 170 378 170 378 Z" fill="#e8304a" opacity="0.95"/>
+      <path d="M170 374 C170 374 153 361 153 351 C153 344 159 340 164 343 C167 344 170 348 170 348 C170 348 173 344 176 343 C181 340 187 344 187 351 C187 361 170 374 170 374 Z" fill="#ff5572" opacity="0.6"/>
     </svg>
   </div>
 
@@ -361,6 +407,56 @@
     p.style.cssText = `width:${size}px;height:${size*0.7}px;left:${Math.random()*100}%;background:${petalColors[Math.floor(Math.random()*petalColors.length)]};opacity:0.7;animation-duration:${5+Math.random()*7}s;animation-delay:${Math.random()*8}s;`;
     petalsContainer.appendChild(p);
   }
+
+  const bouquet = document.getElementById('bouquet');
+
+bouquet.addEventListener('click', () => {
+
+  bouquet.animate(
+    [
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.08)' },
+      { transform: 'scale(1)' }
+    ],
+    {
+      duration: 300
+    }
+  );
+
+  const rect = bouquet.getBoundingClientRect();
+
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  for (let i = 0; i < 60; i++) {
+
+    const heart = document.createElement('div');
+
+    heart.className = 'explosion-heart';
+    heart.innerHTML = '❤';
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 150 + Math.random() * 350;
+
+    const x = Math.cos(angle) * distance;
+    const y = Math.sin(angle) * distance;
+
+    heart.style.left = centerX + 'px';
+    heart.style.top = centerY + 'px';
+
+    heart.style.fontSize = (18 + Math.random() * 30) + 'px';
+
+    heart.style.setProperty('--x', x + 'px');
+    heart.style.setProperty('--y', y + 'px');
+    heart.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+
+    document.body.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 1800);
+  }
+});
 </script>
 
 </body>
